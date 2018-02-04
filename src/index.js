@@ -36,22 +36,25 @@ function main(_opts) {
     });
   });
 
-  return BPromise.map(xyzArr, async (xyz) => {
+  return BPromise.map(xyzArr, (xyz) => {
     const [x, y, z] = xyz;
-    const data = await downloadTile(x, y, z, opts);
-    if (DEBUG) {
-      fs.writeFileSync(`${z}-${x}-${y}.png`, data, { encoding: null });
-    }
 
-    const xRange = bounds.maxX - bounds.minX;
-    const yRange = bounds.maxY - bounds.minY;
-    return {
-      data,
-      xyz,
-      tileUrl: buildUrl(opts.template, [x, y, z]),
-      top: (yRange - (bounds.maxY - y)) * opts.tileSize,
-      left: (xRange - (bounds.maxX - x)) * opts.tileSize,
-    };
+    return downloadTile(x, y, z, opts)
+      .then(data => {
+        if (DEBUG) {
+          fs.writeFileSync(`${z}-${x}-${y}.png`, data, { encoding: null });
+        }
+
+        const xRange = bounds.maxX - bounds.minX;
+        const yRange = bounds.maxY - bounds.minY;
+        return {
+          data,
+          xyz,
+          tileUrl: buildUrl(opts.template, [x, y, z]),
+          top: (yRange - (bounds.maxY - y)) * opts.tileSize,
+          left: (xRange - (bounds.maxX - x)) * opts.tileSize,
+        };
+      });
   }, { concurrency: opts.concurrency })
     .then((tiles) => {
       const rows = bounds.maxY - bounds.minY + 1;
