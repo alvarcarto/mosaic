@@ -6,6 +6,8 @@ const SphericalMercator = require('@mapbox/sphericalmercator');
 const globalMerc = require('global-mercator');
 const sharp = require('sharp');
 const Jimp = require('jimp');
+const blend = require('blend');
+const blendAsync = BPromise.promisify(blend);
 
 BPromise.config({
   longStackTraces: true,
@@ -186,41 +188,15 @@ function downloadTile(x, y, z, opts) {
 }
 
 function stitch(tiles, opts) {
-  const options = {
-    raw: {
-      width: opts.columns * opts.tileSize,
-      height: opts.rows * opts.tileSize,
-      channels: 4,
-      // The whole image should be covered with tiles later, red
-      // will reveal possible bugs
-      background: DEBUG ? { r: 255, g: 0, b: 0 } : { r: 250, g: 250, b: 250 },
-    },
-  };
-
-  return sharp(null, { create: options.raw }).raw().toBuffer()
-    .then((base) => {
-      return BPromise.reduce(tiles, (memo, tile) => {
-        return sharp(memo, options)
-          .overlayWith(tile.data, {
-            top: tile.top,
-            left: tile.left,
-          })
-          .raw()
-          .toBuffer()
-          .catch(err => {
-            if (opts.failOnTileError) {
-              console.error(`Error stitching tile: ${tile.tileUrl}`);
-              throw err;
-            }
-
-            console.warn(`Warning: stitching tile failed ${tile.tileUrl}`);
-            return sharp(memo, options).raw().toBuffer();
-          });
-      }, base);
-    })
-    .then((image) => {
-      return sharp(image, options).png().toBuffer();
-    });
+  return blendAsync(_.map(tiles, tile => ({
+    buffer: tile.data,
+    x: tile.left,
+    y: tile.top,
+  })), {
+    format: 'png',
+    width: opts.columns * opts.tileSize,
+    height: opts.rows * opts.tileSize,
+  });
 }
 
 function buildUrl(template, xyz) {

@@ -20,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "@mapbox/sphericalmercator": "^1.0.5",
+    "blend": "^1.2.0",
     "bluebird": "^3.5.1",
     "global-mercator": "^3.0.2",
     "jimp": "^0.2.28",
