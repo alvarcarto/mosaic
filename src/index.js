@@ -69,9 +69,10 @@ function main(_opts) {
       endTime(dLabel);
       startTime(sLabel);
 
+      const goodTiles = _.filter(tiles, tile => tile.data.length > 0);
       const rows = bounds.maxY - bounds.minY + 1;
       const columns = bounds.maxX - bounds.minX + 1;
-      return stitch(tiles, {
+      return stitch(goodTiles, {
         rows,
         columns,
         tileSize: opts.tileSize,
