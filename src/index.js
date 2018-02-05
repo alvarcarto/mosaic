@@ -197,7 +197,7 @@ function stitch(tiles, opts) {
     },
   };
 
-  return sharp({ create: options.raw }).raw().toBuffer()
+  return sharp(null, { create: options.raw }).raw().toBuffer()
     .then((base) => {
       return BPromise.reduce(tiles, (memo, tile) => {
         return sharp(memo, options)
