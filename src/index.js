@@ -14,6 +14,7 @@ BPromise.config({
 });
 
 const DEBUG = false;
+const MEASURE_PERF = process.env.MOSAIC_MEASURE_PERF === 'true';
 
 function main(_opts) {
   const opts = _.merge({
@@ -38,6 +39,12 @@ function main(_opts) {
     });
   });
 
+  const dLabel = getTimingLabel('download');
+  const sLabel = getTimingLabel('stitch');
+  const cLabel = getTimingLabel('crop');
+
+  startTime(dLabel);
+
   return BPromise.map(xyzArr, (xyz) => {
     const [x, y, z] = xyz;
 
@@ -59,6 +66,9 @@ function main(_opts) {
       });
   }, { concurrency: opts.concurrency })
     .then((tiles) => {
+      endTime(dLabel);
+      startTime(sLabel);
+
       const rows = bounds.maxY - bounds.minY + 1;
       const columns = bounds.maxX - bounds.minX + 1;
       return stitch(tiles, {
@@ -69,6 +79,8 @@ function main(_opts) {
       });
     })
     .then((image) => {
+      endTime(sLabel);
+      startTime(cLabel);
       // Imagine a square map with 4 tiles:
       // |a|b|
       // |c|d|
@@ -120,6 +132,8 @@ function main(_opts) {
         .toBuffer();
     })
     .tap(image => {
+      endTime(cLabel);
+
       if (DEBUG) {
         fs.writeFileSync(`stitched.png`, image, { encoding: null });
       }
@@ -197,6 +211,22 @@ function stitch(tiles, opts) {
     width: opts.columns * opts.tileSize,
     height: opts.rows * opts.tileSize,
   });
+}
+
+function getTimingLabel(label) {
+  return `${label} ${Date.now()}`;
+}
+
+function startTime(label) {
+  if (MEASURE_PERF) {
+    console.time(label);
+  }
+}
+
+function endTime(label) {
+  if (MEASURE_PERF) {
+    console.timeEnd(label);
+  }
 }
 
 function buildUrl(template, xyz) {
