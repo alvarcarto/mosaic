@@ -33,7 +33,7 @@ tile({
 ## Release
 
 * Commit all changes.
-* Use [np](https://github.com/sindresorhus/npm) to automate the release:
+* Use [np](https://github.com/sindresorhus/np) to automate the release:
 
     `np`
 
