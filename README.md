@@ -15,7 +15,7 @@ const fs = require('fs');
 const { tile } = require('@alvarcarto/mosaic');
 
 tile({
-  templateUrl: 'http://yourtileserver.com/{z}/{x}/{y}.png',
+  template: 'http://yourtileserver.com/{z}/{x}/{y}.png',
   swLat: 32.473,
   swLng: -15.594,
   neLat: 45.298,
