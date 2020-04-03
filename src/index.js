@@ -6,7 +6,7 @@ const SphericalMercator = require('@mapbox/sphericalmercator');
 const globalMerc = require('global-mercator');
 const sharp = require('sharp');
 const Jimp = require('jimp');
-const blend = require('blend');
+const blend = require('@mapbox/blend');
 const blendAsync = BPromise.promisify(blend);
 
 BPromise.config({
