@@ -20,6 +20,7 @@ function main(_opts) {
   const opts = _.merge({
     tileSize: 256,
     zoomLevel: null,
+    retina: true,
     minHeight: 500,
     minWidth: 500,
     concurrency: 10,
@@ -27,9 +28,11 @@ function main(_opts) {
   }, _opts);
 
   const merc = new SphericalMercator({ size: opts.tileSize });
+
+  const zoomLevelAdd = opts.retina ? 1 : 0;
   const z = _.isFinite(opts.zoomLevel)
     ? opts.zoomLevel
-    : getZoomLevel(merc, [opts.swLng, opts.swLat], [opts.neLng, opts.neLat], opts.minWidth, opts.minHeight);
+    : getZoomLevel(merc, [opts.swLng, opts.swLat], [opts.neLng, opts.neLat], opts.minWidth, opts.minHeight) + zoomLevelAdd;
   const bounds = merc.xyz([opts.swLng, opts.swLat, opts.neLng, opts.neLat], z);
 
   const xyzArr = [];
