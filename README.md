@@ -30,6 +30,11 @@ tile({
   });
 ```
 
+This module uses Mapnik's GROW_BBOX method to fit the given coordinates to given width and height.
+The implementation in Mapnik's repository: https://github.com/mapnik/mapnik/blob/e9ebc938e08686c8b5364dbd61827dc9d68589d5/src/map.cpp#L587.
+
+
+
 # Contributors
 
 
