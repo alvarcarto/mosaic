@@ -1,6 +1,6 @@
 {
   "name": "@alvarcarto/mosaic",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Stitch map tiles to form a bigger map image",
   "main": "src/index.js",
   "repository": {
