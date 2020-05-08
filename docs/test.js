@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const sharp = require('sharp');
-const { tile } = require('./src/index');
+const { tile } = require('../src/index');
 
 const url = require('url');
 
