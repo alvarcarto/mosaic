@@ -124,7 +124,7 @@ function main(_opts) {
           });
       }
 
-      return sharp(image)
+      return sharp(image, { limitInputPixels: false })
         .extract({
           left: topLeft[0],
           top: topLeft[1],
