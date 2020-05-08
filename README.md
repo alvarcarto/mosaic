@@ -15,6 +15,9 @@ const fs = require('fs');
 const { tile } = require('@alvarcarto/mosaic');
 
 tile({
+  // Parameters below are required
+  width: 700,
+  height: 1000,
   template: 'http://yourtileserver.com/{z}/{x}/{y}.png',
   swLat: 32.473,
   swLng: -15.594,

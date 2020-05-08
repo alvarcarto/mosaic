@@ -7,6 +7,8 @@ const globalMerc = require('global-mercator');
 const sharp = require('sharp');
 const Jimp = require('jimp');
 const blend = require('@mapbox/blend');
+const { fixBoundsAspectRatio } = require('./math');
+
 const blendAsync = BPromise.promisify(blend);
 
 BPromise.config({
@@ -21,19 +23,24 @@ function main(_opts) {
     tileSize: 256,
     zoomLevel: null,
     retina: true,
-    minHeight: 500,
-    minWidth: 500,
     concurrency: 10,
-    failOnTileError: false,
   }, _opts);
 
-  const merc = new SphericalMercator({ size: opts.tileSize });
+  if (!_.isInteger(opts.width)) {
+    throw new Error(`opts.width must be a number`);
+  }
 
+  if (!_.isInteger(opts.height)) {
+    throw new Error(`opts.height must be a number`);
+  }
+
+  const merc = new SphericalMercator({ size: opts.tileSize });
+  const newBounds = fixBoundsAspectRatio(merc, opts);
   const zoomLevelAdd = opts.retina ? 1 : 0;
   const z = _.isFinite(opts.zoomLevel)
     ? opts.zoomLevel
-    : getZoomLevel(merc, [opts.swLng, opts.swLat], [opts.neLng, opts.neLat], opts.minWidth, opts.minHeight) + zoomLevelAdd;
-  const bounds = merc.xyz([opts.swLng, opts.swLat, opts.neLng, opts.neLat], z);
+    : getZoomLevel(merc, [newBounds.swLng, newBounds.swLat], [newBounds.neLng, newBounds.neLat], opts.width, opts.height) + zoomLevelAdd;
+  const bounds = merc.xyz([newBounds.swLng, newBounds.swLat, newBounds.neLng, newBounds.neLat], z);
 
   const xyzArr = [];
   _.forEach(_.range(bounds.minY, bounds.maxY + 1), y => {
@@ -47,7 +54,6 @@ function main(_opts) {
   const cLabel = getTimingLabel('crop');
 
   startTime(dLabel);
-
   return BPromise.map(xyzArr, (xyz) => {
     const [x, y, z] = xyz;
 
@@ -79,7 +85,6 @@ function main(_opts) {
         rows,
         columns,
         tileSize: opts.tileSize,
-        failOnTileError: opts.failOnTileError
       });
     })
     .then((image) => {
@@ -131,7 +136,7 @@ function main(_opts) {
           width: cropWidth,
           height: cropHeight,
         })
-        .resize(cropWidth, cropHeight)
+        .resize(opts.width, opts.height)
         .png()
         .toBuffer();
     })
