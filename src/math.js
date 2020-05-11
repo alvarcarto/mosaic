@@ -16,7 +16,7 @@ function fixBoundsAspectRatio(merc, opts) {
 
   let newMercatorBox = setMercatorBoxWidth(mercatorBox, boxHeight * ratio1);
   if (ratio2 > ratio1) {
-    newMercatorBox = setMercatorBoxHeight(mercatorBox, boxWidth * ratio1)
+    newMercatorBox = setMercatorBoxHeight(mercatorBox, boxWidth / ratio1)
   }
 
   const sw = merc.inverse(newMercatorBox[0]);
